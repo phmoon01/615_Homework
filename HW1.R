@@ -1,0 +1,63 @@
+### Paul Moon ###
+
+### Homework 1                                         ###
+### Standard R ###
+
+#Put your code in this file. Make sure you assign the relevant values to the correct variable names, which are given below. 
+#Uncomment the variables as you assign your final values/functions/results to them.
+
+### VECTORS ###
+## Q1 
+
+v1 <- c(1,2,3,4,5,6,7,8,7,6,5,4,3,2,1)
+v2 <- c(9,4,1,9,4,1,9,4,1,9,4,1,9,4,1,9,4,1,9,4,1,9,4,1,9,4,1,9,4,1,9)
+v3 <- 
+  
+### MATRICES ###
+
+## Q2 
+  
+matA<-matrix(0,6,6)
+
+## Q3
+
+set.seed(42)
+matB<-matrix(sample.int(10),6,10)
+#a3<-
+#b3<-
+
+## Q4
+
+#tmpFn<-
+
+## Q5
+
+#quadmap<-
+
+## Q6
+
+#In1<-
+#In2<-
+
+## Q7
+
+
+fibonacci<-function(n){
+  a <- 0
+  b <- 1
+  
+  for(i in 1:n){
+    next_num <- a + b
+    a <- b
+    b <- next_num
+  }
+}
+
+## Q8
+
+#n<-
+
+## Q9
+
+#rowAdd<-
+  
