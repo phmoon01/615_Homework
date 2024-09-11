@@ -36,16 +36,16 @@ matB<-matrix(sample.int(10),6,10)
 
 ## Q6
 
-#In1<-
+In1<- function(xVec,yVec){
+  return(colSums(outer(yVec,xVec,"<")))
+}
 #In2<-
 
 ## Q7
 
-
 fibonacci<-function(n){
   a <- 0
   b <- 1
-  
   for(i in 1:n){
     next_num <- a + b
     a <- b
