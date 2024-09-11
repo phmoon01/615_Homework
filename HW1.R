@@ -11,7 +11,7 @@
 
 v1 <- c(1,2,3,4,5,6,7,8,7,6,5,4,3,2,1)
 v2 <- c(rep(c(9,4,1),10),9)
-v3 <- as.vector(rbind(0.1^3*(1:12),0.2^1*(1:12)))
+v3 <- c(0.1^3, 0.2^1, 0.1^6, 0.2^2, 0.1^9, 0.2^3, 0.1^12, 0.2^4, 0.1^15, 0.2^5, 0.1^18, 0.2^6, 0.1^21, 0.2^7, 0.1^24, 0.2^8, 0.1^27, 0.2^9, 0.1^30, 0.2^10,0.1^33, 0.2^11, 0.1^36, 0.2^12)
   
 ### MATRICES ###
 
@@ -32,7 +32,7 @@ tmpFn <- function(xVec){
   q4 <- integer(length(xVec))
   for(i in seq(1, length(xVec))){
     if(xVec[i] < 0){
-      q4[i] <- xVec[i] * xVec[i] + 2 * xVec[i] = 3
+      q4[i] <- xVec[i] * xVec[i] + 2 * xVec[i] + 3
     }
     else if(xVec[i] >= 0 && xVec[i] < 2){
       q4[i] <- xVec[i] + 3
@@ -74,13 +74,15 @@ fibonacci <- function(n){
 
 ## Q8
 
-a <- 1
-b <- 1
-while(b < 10000000){
-  a <- a + 1
-  b <- a * b
+q8 <- function(){
+  n <- 1
+  m <- 1
+  while(m <= 10000000){
+    n <- n + 1
+    m <- n * m
+  }
+  return(n)
 }
-n <- a - 1
 
 ## Q9
 
