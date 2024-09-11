@@ -39,7 +39,11 @@ matB<-matrix(sample.int(10),6,10)
 In1<- function(xVec,yVec){
   return(colSums(outer(yVec,xVec,"<")))
 }
-#In2<-
+In2<- function(xVec,yVec){
+  return(rowSums(sapply(yVec,function(y){
+    y<xVec
+  })))
+}
 
 ## Q7
 
