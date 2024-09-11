@@ -17,18 +17,32 @@ v3 <- as.vector(rbind(0.1^3*(1:12),0.2^1*(1:12)))
 
 ## Q2 
   
-matA<-matrix(0,6,6)
+matA <- matrix(0,6,6)
 
 ## Q3
 
 set.seed(42)
-matB<-matrix(sample.int(10),6,10)
+matB <- matrix(sample.int(10),6,10)
 #a3<-
 #b3<-
 
 ## Q4
 
-#tmpFn<-
+tmpFn <- function(xVec){
+  q4 <- integer(length(xVec))
+  for(i in seq(1, length(xVec))){
+    if(xVec[i] < 0){
+      q4[i] <- xVec[i] * xVec[i] + 2 * xVec[i] = 3
+    }
+    else if(xVec[i] >= 0 && xVec[i] < 2){
+      q4[i] <- xVec[i] + 3
+    }
+    else if(xVec[i] >= 2){
+      q4[i] <- xVec[i] * xVec[i] + 4 * xVec[i] - 7
+    }
+    return(q4)
+  }
+}
 
 ## Q5
 
@@ -36,18 +50,18 @@ matB<-matrix(sample.int(10),6,10)
 
 ## Q6
 
-In1<- function(xVec,yVec){
+In1 <- function(xVec,yVec){
   return(colSums(outer(yVec,xVec,"<")))
 }
-In2<- function(xVec,yVec){
+In2 <- function(xVec,yVec){
   return(rowSums(sapply(yVec,function(y){
-    y<xVec
+    y < xVec
   })))
 }
 
 ## Q7
 
-fibonacci<-function(n){
+fibonacci <- function(n){
   a <- 0
   b <- 1
   for(i in 1:n){
@@ -55,13 +69,27 @@ fibonacci<-function(n){
     a <- b
     b <- next_num
   }
+  return(a)
 }
 
 ## Q8
 
-#n<-
+a <- 1
+b <- 1
+while(b < 10000000){
+  a <- a + 1
+  b <- a * b
+}
+n <- a - 1
 
 ## Q9
 
-#rowAdd<-
-  
+mat9 <- matrix(1:1000000, nrow = 100000, ncol = 10)
+rowAdd <- numeric(100000)
+for (i in 1:100000){
+  rowAdd[i] <- sum(mat9[i,])
+}
+applyrS <- apply(mat9, 1, sum)
+builtinrS <- rowSums(mat9)
+all.equal(rowAdd, applyrS)
+all.equal(rowAdd, builtinrS)
