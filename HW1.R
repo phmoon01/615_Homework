@@ -74,14 +74,12 @@ fibonacci <- function(n){
 
 ## Q8
 
-q8 <- function(){
-  n <- 1
-  m <- 1
-  while(m <= 10000000){
-    n <- n + 1
-    m <- n * m
-  }
-  return(n)
+a <- 1
+b <- 1
+while(b <= 10000000){
+  a <- a + 1
+  b <- a * b
+  n <- a
 }
 
 ## Q9
