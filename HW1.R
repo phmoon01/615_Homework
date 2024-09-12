@@ -64,11 +64,7 @@ quadmap <- function(start, rho, niter){
   return(q5)
 }
 
-quadmap(start = 0.95, rho = 2, niter = 500)
-
 tmp <- quadmap(start = 0.95, rho = 2.99, niter = 500)
-plot(tmp, type = "1")
-plot(tmp[300:500], type = "1")
 
 ## Q6
 
