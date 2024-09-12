@@ -17,14 +17,23 @@ v3 <- c(0.1^3, 0.2^1, 0.1^6, 0.2^2, 0.1^9, 0.2^3, 0.1^12, 0.2^4, 0.1^15, 0.2^5, 
 
 ## Q2 
   
-matA <- matrix(0,6,6)
+matA <- matrix(0,nrow = 6,ncol = 6)
+for (i in 1:6){
+  if (i > 1){
+    matA[i, i - 1] <- 1
+  }
+  if (i < 6){
+    matA[i, i + 1] <- 1
+  }
+}
+matA
 
 ## Q3
 
 set.seed(42)
-matB <- matrix(sample.int(10),6,10)
-#a3<-
-#b3<-
+matB <- matrix(sample(1:10, 60, replace = TRUE), nrow = 6, ncol = 10)
+a3 <- apply(matB, 1, function(x) sum(x > 4))
+b3 <- which(apply(matB, 1, function(x) sum(x == 7)) == 2)
 
 ## Q4
 
@@ -46,7 +55,20 @@ tmpFn <- function(xVec){
 
 ## Q5
 
-#quadmap<-
+quadmap <- function(start, rho, niter){
+  q5 <- numeric(niter)
+  q5[1] <- start
+  for (n in 2:niter){
+    q5[n] <- rho * q5[n - 1] * (1 - q5[n - 1])
+  }
+  return(q5)
+}
+
+quadmap(start = 0.95, rho = 2, niter = 500)
+
+tmp <- quadmap(start = 0.95, rho = 2.99, niter = 500)
+plot(tmp, type = "1")
+plot(tmp[300:500], type = "1")
 
 ## Q6
 
