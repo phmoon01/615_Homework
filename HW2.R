@@ -1,4 +1,4 @@
-### YOUR NAME HERE ###
+### Paul Moon ###
 
 ### Homework 2                                         ###
 ### GGPlot Basics ###
