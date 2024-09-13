@@ -16,13 +16,13 @@ library(stringr)# This loads the packages necessary to run your plots. Do not de
 SPX_1Month <- read.csv("SPX-1Month.csv")
 
 spx_plot1 <- ggplot(SPX_1Month, aes(x = Date, y = Close.Last, group = 1)) + 
-  geom_line() + 
-  geom_point() 
+  geom_point() + 
+  geom_line()
 spx_plot1
 
-spx_plot2 <- ggplot(SPX_1Month, aes(x = Date, y = Close.Last, group = 1)) + 
-  geom_line() + 
+spx_plot2 <- ggplot(SPX_1Month, aes(x = Date, y = Close.Last, group = 1)) +  
   geom_point() + 
+  geom_line() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(
     title = "S&P500 - Closing Price over the Last Month",
@@ -65,27 +65,23 @@ squirrelPlot
 ### Exercise 4
 big_mac <- read.csv("big_mac.csv")
 
-bigMac <- ggplot(big_mac, aes(x = as.numeric(GDP.Per.Capita), y = dollar_price)) + 
+bigMac <- ggplot(data = big_mac, mapping = aes(x = as.numeric(GDP.Per.Capita), y = dollar_price)) + 
   geom_point() + 
-  scale_x_continuous(breaks = c(0, 25000, 50000, 75000, 100000), labels = c("0", "25000", "50000", "75000", "100000")) + 
-  geom_smooth(method = "loess", na.rm = TRUE) + 
+  geom_smooth() + 
   labs(
-    title = "Countries' GDP per Capita compared to their Big Mac Index", 
+    title = "Countries' GDP Per Capita compared to their Big Mac Index", 
     x = "GDP per Capita in Dollars", 
     y = "Dollar Price of a Big Mac"
-  ) + 
-  theme_minimal()
+  )
 bigMac
 
-logBigMac <- ggplot(big_mac, aes(x = log(as.numeric(GDP.Per.Capita)), y = dollar_price)) + 
+logBigMac <- ggplot(data = big_mac, mapping = aes(x = log(as.numeric(GDP.Per.Capita)), y = dollar_price)) + 
   geom_point() + 
-  scale_x_continuous(breaks = c(8, 9, 10, 11, 12), labels = c("8", "9", "10", "11", "12")) + 
-  geom_smooth(method = "loess", na.rm = TRUE) + 
+  geom_smooth() + 
   labs(
-    title = "Log-transformed GDP Per Capita compared to their Big Mac Index", 
-    x = "Log of GDP per Capita", 
+    title = "Countries' GDP Per Capita compared to their Big Mac Index", 
+    x = "Log of Dollar GDP Per Capita", 
     y = "Dollar Price of a Big Mac"
-  ) + 
-  theme_minimal()
+  )
 logBigMac
   
