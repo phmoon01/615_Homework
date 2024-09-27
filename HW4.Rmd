@@ -13,6 +13,7 @@ library(ggplot2)
 library(zoo)
 library(tibble)
 library(outliers)
+library(data.table)
 ```
 
 As we discussed in lecture on Wednesday, the National Oceanic and Atmospheric Administration(NOAA) keeps track of meteorological data from a number of buoys. For this exercise, we are interested in Buoy number 44013 located sixteen nautical miles east of Boston Harbour and the questions will deal with data from that buoy.
@@ -96,24 +97,27 @@ buoy$DPD <- ifelse(buoy$DPD == 99, NA, buoy$DPD)
 buoy$WVHT <- ifelse(buoy$WVHT == 99, NA, buoy$WVHT)
 buoy$BAR <- ifelse(buoy$BAR == 999, NA, buoy$BAR)
 buoy$ATMP <- ifelse(buoy$ATMP == 999, NA, buoy$ATMP)
-buoy$WTMP <- ifelse(buoy$WTMP == 999, NA, buoy$WTMP) #replacing all our not available numbers to NA
+buoy$WTMP <- ifelse(buoy$WTMP == 999, NA, buoy$WTMP)
+buoy$WSPD <- ifelse(buoy$WSPD == 99, NA, buoy$WSPD)
+buoy$BAR <- ifelse(buoy$BAR == 9999, NA, buoy$BAR) #replacing all our not available numbers to NA
 
 buoy$datetime <- ymd_h(paste(buoy$YYYY, buoy$MM, buoy$DD, buoy$hh, sep = "-")) #adding datetime column
-```
 
-```{r}
-VIScategory <- ifelse(is.na(buoy$VIS), "N/A", "Has Data") #determines if VIS index has data or NA
+cat("It is helpful to turn your missing/null data points into NA's since there are a lot of functions that manipulations that you can do with NA's in R; however, sometimes it might be easier to keep it as values such as 99 or 999 in order to keep all the column vectors in the dataset a numeric vector.")
 
-ggplot(buoy, aes(x = datetime, y = VIScategory)) +
+VIScategory <- ifelse(is.na(buoy$ATMP), "Has Data", "N/A")
+
+ggplot(buoy, aes(x = datetime, y = VIScategory)) + 
   geom_point() +
-  labs(x = "Time", 
-       y = "Category", 
-       title = "Date vs Category") #set axis and plot
+  labs(x = "Date", y = "Yes or No Data", title = "The trend of NA in Air Temperature") #finds the patterns of NA's
+
+cat("\n\nIt seems as if there has been a trend with available data in ATMP throughout the Buoy data. From internet research, there seemed to have been increased funding between the early 2000s until pre-covid which could have caused the spike in more data (less NAs) in the buoy ATMP data.")
 ```
 
 (c) Can you use the Buoy data to see the effects of climate change? Create visualizations to show this and justify your choices. Can you think of statistics you can use to bolster what your plots represent? Calculate these, justify your use of them. Add this code, its output, your answers and visualizations to your pdf.
 
 ```{r}
+#In this case, it was determined that the rise of temperature recorded in the Buoy data was a good indication to see whether or not there could be suspected data of climate change. In this case, the change in lowest temperatures for each year of Buoy recorded data.
 yearMin <- buoy %>%
   group_by(year = year(datetime)) %>%
   summarise(min = min(WTMP, na.rm = TRUE))
@@ -124,10 +128,31 @@ ggplot(yearMin, aes(x = year, y = min)) +
   labs(title = "Change in Temperature from 1985-2023", 
        x = "Year", 
        y = "Lowest Temperature (Celcius)") #set axis and plot
+
+cat("A statistics that I can use to bolster my plot is to use the average temperature throughout the entire year and see if that value increases alongside the minimum temperature as graphed.")
 ```
 
 (d) As part of this Homework, you have been given data for rainfall in Boston from 1985 to the end of 2013. Your job for this exercise is to see if you can spot any patterns between rainfall(whether it happens and how much of it there is) and the readings taken by the weather buoy in the same period. There are a number of ways you can do this but the broad steps are: 1) Acquaint yourself with the data. Look at distributions and summary statistics(dplyr is great for coaxing means, averages, counts out of data). 2) Create visualizations. Can you see patterns in the distributions and visualizations? Investigate these with more statistics and visualizations. 3) Try building a very simple model. Explain your choices at every step. Do you come away from this exercise with more sympathy for the weather people on TV who keep getting their forecasts wrong?
 
-```{r}
+```{r, warning = FALSE}
+rainfall <- read.csv("Rainfall.csv")
+rainfall$datetime <- ymd_hm(rainfall$DATE)
+rainfall_subset <- rainfall[, c("datetime", "HPCP")]
+newData <- merge(buoy, rainfall_subset, by = "datetime", all = TRUE)
+# This was to combine the two different datasets and put them into a single newData dataset using similar dates to compare the two datasets
 
+ggplot(newData, aes(x = log(HPCP), y = BAR), pch = 20) + 
+  geom_point() + 
+  labs(x = "Log of Precipitation per Hour",
+       y = "Pressure",
+       title = "log(HPCP) vs Pressure")
+
+ggplot(newData, aes(x = log(HPCP), y = ATMP), pch = 20) + 
+  geom_point() + 
+  labs(x = "Log of Precipitation per Hour",
+       y = "Air Temperature (C)",
+       title = "log(HPCP) vs ATMP")
+# I choose these two graphs because I thought that it will best see the trends of HPCP with Buoy data points. I had to find the log of HPCP due to the fact that the graphs were initially very heavily right skewed due to the fact that small amounts of precipitation could be more common that heavy storms.
+
+cat("I do not get much sympathy from weather people on TV since they have all this data to use and many datasets all around the world. I feel as if, if they are able to have access to all of the history of weather, they should be able to accurately predict the weather.")
 ```
