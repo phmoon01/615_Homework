@@ -11,6 +11,8 @@ library(dplyr)
 library(lubridate)
 library(ggplot2)
 library(zoo)
+library(tibble)
+library(outliers)
 ```
 
 As we discussed in lecture on Wednesday, the National Oceanic and Atmospheric Administration(NOAA) keeps track of meteorological data from a number of buoys. For this exercise, we are interested in Buoy number 44013 located sixteen nautical miles east of Boston Harbour and the questions will deal with data from that buoy.
@@ -25,66 +27,107 @@ This is the link to the buoy of interest: https://www.ndbc.noaa.gov/station_page
 Keep in mind that initially, these datasets did not record units and then started to do so in the line below the column headers. So for some years you will have to skip 1 instead of 2.
 
 In addition to reading in this data, use lubridate to create a proper date column.
-```{r}
-file_root<-"https://www.ndbc.noaa.gov/view_text_file.php?filename=44013h"
-year<-"2023"
-tail<- ".txt.gz&dir=data/historical/stdmet/"
-path<-paste0(file_root,year,tail)
-header=scan(path,what= 'character',nlines=1)
-buoy<-fread(path,header=FALSE,skip=2)
-colnames(buoy)<-header
-```
 
 Save your code in an R Script with an appropriate name which you must include in your Github submission. Keep in mind that if we clone your repository, this script must run without errors for you to get credit. Remember to comment your code for readability.
 
 ```{r}
-for (i in 1:length(year)){
-  year_num = year[i]
-  path<-paste0(file_root, year_num, tail)
-  tmp<-fread(path,header=FALSE,skip=2, showProgress=FALSE)
-  buoy<-rbind(buoy, tmp, use.names=FALSE, fill=TRUE)
+dataYear <- function(year) {
+  paste0("https://www.ndbc.noaa.gov/view_text_file.php?filename=44013h", 
+         year, ".txt.gz&dir=data/historical/stdmet/")
 }
-```
 
+year1 <- "1985"
+buoy <- read.table(dataYear(year1), na.strings = "MM", header = TRUE, fill = TRUE, sep = "")
+
+header <- scan(dataYear(year1), what = 'character', nlines = 1)
+colnames(buoy) <- header
+buoy <- buoy %>%
+  add_column(mm = NA, .after = "hh") %>%
+  add_column(TIDE = NA, .after = "VIS") #input the 1985 data
+
+
+yearRest <- 1986:2006 #input years 1986-2006
+for (i in yearRest) {
+  url <- dataYear(i)
+  temp_data <- read.table(dataYear(i), header = TRUE, fill = TRUE, sep = "")
+  temp_data <- temp_data %>%
+    add_column(mm = NA, .after = "hh") %>%
+    add_column(TIDE = NA, .after = "VIS")
+  buoy <- bind_rows(buoy, temp_data)
+}
+buoy$YY<-na.omit(c(buoy$YY, buoy$YYYY))
+buoy <- buoy %>%
+  select(-YYYY, -TIDE.1, -mm.1)
+colnames(buoy)[colnames(buoy) == "YY"] <- "YYYY"
+
+
+yearRest<-2007:2023 #input years 2007-2023
+for (i in yearRest) {
+  url <- dataYear(i)
+  temp_data <- (read.table(dataYear(i), header = FALSE, fill = TRUE, sep = "", skip = 1))
+  header=scan(dataYear(i), what = 'character', nlines = 1)
+  colnames(temp_data) <- header
+  buoy <- bind_rows(buoy, temp_data)
+}
+
+buoy$YYYY <- na.omit(c(buoy$YYYY, buoy$`#YY`))
+buoy$BAR <- na.omit(c(buoy$BAR, buoy$PRES)) #removing all observations with missing data
+buoy <- buoy %>%
+  select(-`#YY`, -PRES)
+
+buoy$WD <- na.omit(c(buoy$WD, buoy$WDIR))
+buoy <- buoy %>%
+  select(-WDIR)
+```
 For the following questions (b through d), you will need to put your code, its output, and your written answers into a pdf. One way to do this is to use R Markdown or Quarto and knit into a pdf. Include the rmd/qmd file as well the pdf in the github repository you submit.
 
-(b) Your next exercise is to identify and deal with the null data in the dataset.Recall from class that for WDIR and some other variables these showed up as 999 in the dataset. Convert them to NA’s. Is it always appropriate to convert missing/null data to NA’s? When might it not be? Analyze the pattern of NA’s. Do you spot any patterns in the way/dates that these are distributed?
+(b) Your next exercise is to identify and deal with the null data in the dataset. Recall from class that for WDIR and some other variables these showed up as 999 in the dataset. Convert them to NA’s. Is it always appropriate to convert missing/null data to NA’s? When might it not be? Analyze the pattern of NA’s. Do you spot any patterns in the way/dates that these are distributed?
 
 Bonus: Can you think of other data sources you can add to this that might shed light on the NA’s? Join those to your data and investigate. Look at government shutdowns and budget changes.
 
 ```{r}
-buoy<-subset(buoy, select = -V17)
-buoy<-subset(buoy, select = -V18)
+buoy = buoy %>% select(-TIDE) #removing the useless TIDE column
 
-buoy$VIS<-ifelse(buoy$VIS==99, NA, buoy$VIS)
-buoy$DEWP<-ifelse(buoy$DEWP==999, NA, buoy$DEWP)
-buoy$MWD<-ifelse(buoy$MWD==999, NA, buoy$MWD)
-buoy$APD<-ifelse(buoy$APD==99, NA, buoy$APD)
-buoy$DPD<-ifelse(buoy$DPD==99, NA, buoy$DPD)
-buoy$WVHT<-ifelse(buoy$WVHT==99, NA, buoy$WVHT)
-buoy$BAR<-ifelse(buoy$BAR==999, NA, buoy$BAR)
+buoy$VIS <- ifelse(buoy$VIS == 99, NA, buoy$VIS)
+buoy$DEWP <- ifelse(buoy$DEWP == 999, NA, buoy$DEWP)
+buoy$MWD <- ifelse(buoy$MWD == 999, NA, buoy$MWD)
+buoy$APD <- ifelse(buoy$APD == 99, NA, buoy$APD)
+buoy$DPD <- ifelse(buoy$DPD == 99, NA, buoy$DPD)
+buoy$WVHT <- ifelse(buoy$WVHT == 99, NA, buoy$WVHT)
+buoy$BAR <- ifelse(buoy$BAR == 999, NA, buoy$BAR)
+buoy$ATMP <- ifelse(buoy$ATMP == 999, NA, buoy$ATMP)
+buoy$WTMP <- ifelse(buoy$WTMP == 999, NA, buoy$WTMP) #replacing all our not available numbers to NA
 
-buoy$datetime <- ymd_h(paste(buoy$YY, buoy$MM, buoy$DD, buoy$hh, sep = "-"))
+buoy$datetime <- ymd_h(paste(buoy$YYYY, buoy$MM, buoy$DD, buoy$hh, sep = "-")) #adding datetime column
+```
+
+```{r}
+VIScategory <- ifelse(is.na(buoy$VIS), "N/A", "Has Data") #determines if VIS index has data or NA
+
+ggplot(buoy, aes(x = datetime, y = VIScategory)) +
+  geom_point() +
+  labs(x = "Time", 
+       y = "Category", 
+       title = "Date vs Category") #set axis and plot
 ```
 
 (c) Can you use the Buoy data to see the effects of climate change? Create visualizations to show this and justify your choices. Can you think of statistics you can use to bolster what your plots represent? Calculate these, justify your use of them. Add this code, its output, your answers and visualizations to your pdf.
 
 ```{r}
-VIS_cat<-ifelse(is.na(buoy$VIS), "N/A", "Has Data")
+yearMin <- buoy %>%
+  group_by(year = year(datetime)) %>%
+  summarise(min = min(WTMP, na.rm = TRUE))
 
-#plot this vector versus time 
-ggplot(buoy, aes(x = datetime, y = VIS_cat)) +
-  geom_point() +
-  labs(x = "Time", y = "Category", title = "Values for VIS: NA vs. Everything Else")
+ggplot(yearMin, aes(x = year, y = min)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", col = "red")+
+  labs(title = "Change in Temperature from 1985-2023", 
+       x = "Year", 
+       y = "Lowest Temperature (Celcius)") #set axis and plot
 ```
 
 (d) As part of this Homework, you have been given data for rainfall in Boston from 1985 to the end of 2013. Your job for this exercise is to see if you can spot any patterns between rainfall(whether it happens and how much of it there is) and the readings taken by the weather buoy in the same period. There are a number of ways you can do this but the broad steps are: 1) Acquaint yourself with the data. Look at distributions and summary statistics(dplyr is great for coaxing means, averages, counts out of data). 2) Create visualizations. Can you see patterns in the distributions and visualizations? Investigate these with more statistics and visualizations. 3) Try building a very simple model. Explain your choices at every step. Do you come away from this exercise with more sympathy for the weather people on TV who keep getting their forecasts wrong?
 
 ```{r}
-buoy <- buoy %>%
-  mutate(temp_moving_avg = rollmean(ATMP, k = 1000, fill = NA, align = "center"))
 
-ggplot(buoy, aes(x = datetime, y = temp_moving_avg)) +
-  geom_point() +
-  labs(x = "Time", y = "Category", title = "Moving average of temp over time")
 ```
